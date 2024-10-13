@@ -4,10 +4,10 @@ with open("README.md", "r", encoding="utf-8") as fh:
   long_description = fh.read()
 
   setuptools.setup(
-  name='spp-core',
+  name='spp_core',
   version='0.0.1',
-  author='Fei Ye',
-  author_email='feiye@vims.edu',
+  author='F_i Ye',
+  author_em_il='feiye@vims.edu',
   description='Core scripts from Python tools for pre/post-processing SCHISM models',
   long_description=long_description,
   long_description_content_type="text/markdown",
@@ -17,12 +17,12 @@ with open("README.md", "r", encoding="utf-8") as fh:
   },
   license='MIT',
   packages=[
-    'spp-core',
-    'spp-core.Grid',
-    'spp-core.Download',
-    'spp-core.Utilities',
+    'spp_core',
+    'spp_core.Grid',
+    'spp_core.Download',
+    'spp_core.Utilities',
   ],
-  package_data={'spp-core': ['Datafiles/*']},
+  package_data={'spp_core': ['Datafiles/*']},
   install_requires=[
     'numpy',
     'pandas',
