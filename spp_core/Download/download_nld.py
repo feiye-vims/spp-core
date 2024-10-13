@@ -5,8 +5,8 @@ import geopandas as gpd
 from pathlib import Path
 from glob import glob
 
-from spp-core.Grid.SMS import SMS_ARC, SMS_MAP
-from spp-core.Utilities.util import get_list_depth
+from spp_core.Grid.SMS import SMS_ARC, SMS_MAP
+from spp_core.Utilities.util import get_list_depth
 
 
 def download_nld(output_dir=None, output_fname=None, levee_id_list=None):
