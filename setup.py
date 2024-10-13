@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
     setuptools.setup(
         name='spp_core',
-        version='0.0.2',
+        version='0.0.3',
         author='Fei Ye',
         author_em_il='feiye@vims.edu',
         description='Core scripts from Python tools for pre/post-processing SCHISM models',
@@ -27,7 +27,9 @@ with open("README.md", "r", encoding="utf-8") as fh:
             'numpy',
             'pandas',
             'xarray',
+            'fiona',
             'pyshp>=2.0.0',
             'geopandas'
+            'tqdm'
         ],
     )
