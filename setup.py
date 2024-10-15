@@ -29,7 +29,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
             'xarray',
             'fiona',
             'pyshp>=2.0.0',
-            'geopandas'
+            'geopandas',
             'tqdm'
         ],
     )
