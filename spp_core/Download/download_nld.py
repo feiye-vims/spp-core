@@ -64,6 +64,30 @@ def nld2map(nld_fname=None):
     return SMS_MAP(arcs=arc_list), xyz
 
 
+def nld2map2(nld_fname=None):
+    '''
+    Convert National Levee Database (NLD) geojson to SMS map
+    '''
+    data = gpd.read_file(nld_fname)
+
+    arc_list = []
+    xyz = np.zeros((0, 3), dtype=float)
+
+    for _, row in data.iterrows():
+        if row['geometry'].geom_type == 'LineString':
+            points = np.array(row['geometry'].coords)
+            my_arc = SMS_ARC(points=points, src_prj='epsg:4326')
+            arc_list.append(my_arc)
+            xyz = np.r_[xyz, my_arc.points[:, :3]]
+        elif row['geometry'].geom_type == 'Point':
+            point = np.array(row['geometry'].coords).reshape(-1, 3)
+            xyz = np.r_[xyz, point]
+        else:
+            raise ValueError(f'Unsupported geometry type: {row["geometry"].geom_type}')
+
+    return SMS_MAP(arcs=arc_list), xyz
+
+
 def json2shapefile(json_dir):
     '''Convert all geojson files of the NLD data
     in the directory to shapefiles and xyz files'''
@@ -76,7 +100,7 @@ def json2shapefile(json_dir):
         gdf = gpd.read_file(json_file)
         gdf['geometry'].to_file(f'{output_dir}/{Path(json_file).stem}.shp')
 
-        my_map, xyz = nld2map(nld_fname=json_file)
+        my_map, xyz = nld2map2(nld_fname=json_file)
         np.savetxt(f'{output_dir}/{Path(json_file).stem}.xyz', xyz, fmt='%.10f')
 
 
@@ -85,27 +109,41 @@ def sample_nld():
     Sample function to download NLD data and convert to SMS map
     '''
     # json2shapefile(
-    #     json_dir='/sciclone/schism10/Hgrid_projects/Levees/Levee_v3/levees-geojson/'
+    #     json_dir='/sciclone/schism10/Hgrid_projects/Levees/Levee_v4/4405000518/levee_4405000518/'
     # )
     # pass
 
-    # input
-    wdir = '/sciclone/schism10/Hgrid_projects/Levees/Levee_v3/FEMA_regions/'
+    # -------------------------- input levee IDs --------------------------
+    # Levee _v3, Aug, 2023
+    # wdir = '/sciclone/schism10/Hgrid_projects/Levees/Levee_v3/FEMA_regions/'
+    # levee_name = 'FEMA_region_levees'
+
+    # # Specify levee ids from a csv file
+    # levee_info_fname = f'{wdir}/System.csv'
+    # df = pd.read_csv(levee_info_fname)
+    # system_ids = df['SYSTEM ID'].to_numpy().astype(int).tolist()
+
+    # Test
+    wdir = '/sciclone/schism10/Hgrid_projects/Levees/Levee_v4/4405000518/'
+    levee_name = 'levee_4405000518'
+    system_ids = [4405000518]
+
+    # Levee_2025
+    wdir = '/sciclone/schism10/Hgrid_projects/Levees/Levee_2025/FEMA_regions/'
     levee_name = 'FEMA_region_levees'
-
+    # Specify levee ids from a csv file
     levee_info_fname = f'{wdir}/System.csv'
-
-    # Specify levee ids
     df = pd.read_csv(levee_info_fname)
-    system_ids = df['SYSTEM ID'].to_numpy().astype(int).tolist()  # system_ids = [4405000525, 1605995181, 5905000001]
+    system_ids = df['SYSTEM ID'].to_numpy().astype(int).tolist()
+    # ----------------------------------------------------------------------
 
     # Download profiles
     download_nld(output_dir=wdir, output_fname=levee_name, levee_id_list=system_ids)
     # which extracts the downloaded *.zip to *.geojson and saved to wdir/{levee_name}
-    # LeveedArea.geojson and System.geojson
+    # LeveedArea.geojson and SystemRoute.geojson
 
     # convert to sms map
-    my_map, xyz = nld2map(nld_fname=f'{wdir}/{levee_name}/System.geojson')
+    my_map, xyz = nld2map2(nld_fname=f'{wdir}/{levee_name}/SystemRoute.geojson')
     my_map.writer(filename=f'{wdir}/{levee_name}/{levee_name}.map')
     np.savetxt(f'{wdir}/{levee_name}/{levee_name}.xyz', xyz, fmt='%.10f')
 
@@ -113,8 +151,8 @@ def sample_nld():
     gdf = gpd.read_file(f'{wdir}/{levee_name}/LeveedArea.geojson')
     gdf['geometry'].to_file(f'{wdir}/{levee_name}/LeveedArea.shp')
 
-    gdf = gpd.read_file(f'{wdir}/{levee_name}/System.geojson')
-    gdf['geometry'].to_file(f'{wdir}/{levee_name}/System.shp')
+    gdf = gpd.read_file(f'{wdir}/{levee_name}/SystemRoute.geojson')
+    gdf['geometry'].to_file(f'{wdir}/{levee_name}/SystemRoute.shp')
 
 
 if __name__ == '__main__':
